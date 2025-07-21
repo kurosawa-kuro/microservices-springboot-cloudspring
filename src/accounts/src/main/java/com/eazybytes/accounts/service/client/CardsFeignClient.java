@@ -1,17 +1,42 @@
 package com.eazybytes.accounts.service.client;
 
 import com.eazybytes.accounts.dto.CardsDto;
-import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
-@FeignClient(name="cards", fallback = CardsFallback.class)
-public interface CardsFeignClient {
+@Component
+public class CardsFeignClient {
 
-    @GetMapping(value = "/api/fetch",consumes = "application/json")
-    public ResponseEntity<CardsDto> fetchCardDetails(@RequestHeader("eazybank-correlation-id")
-                                                         String correlationId, @RequestParam String mobileNumber);
+    private final RestTemplate restTemplate;
+    
+    @Value("${microservices.cards.url:http://cards:9000}")
+    private String cardsServiceUrl;
+
+    public CardsFeignClient(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
+    }
+
+    public ResponseEntity<CardsDto> fetchCardDetails(String correlationId, String mobileNumber) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("eazybank-correlation-id", correlationId);
+        
+        String url = UriComponentsBuilder.fromHttpUrl(cardsServiceUrl + "/api/fetch")
+                .queryParam("mobileNumber", mobileNumber)
+                .toUriString();
+        
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+        
+        try {
+            return restTemplate.exchange(url, HttpMethod.GET, entity, CardsDto.class);
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
 
 }
