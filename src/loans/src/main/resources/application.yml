@@ -6,20 +6,15 @@ spring:
   profiles:
     active: "prod"
   datasource:
-    url: jdbc:h2:mem:testdb
-    driverClassName: org.h2.Driver
-    username: sa
+    url: jdbc:sqlite:/data/app.db
+    driverClassName: org.sqlite.JDBC
+    username: ''
     password: ''
-  h2:
-    console:
-      enabled: true
   jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
+    database-platform: com.eazybytes.common.dialect.SQLiteDialect
     hibernate:
       ddl-auto: update
     show-sql: true
-  config:
-    import: "optional:configserver:http://localhost:8071/"
 
 management:
   endpoints:
@@ -44,14 +39,6 @@ management:
     tags:
       application: ${spring.application.name}
 
-eureka:
-  instance:
-    preferIpAddress: true
-  client:
-    fetchRegistry: true
-    registerWithEureka: true
-    serviceUrl:
-      defaultZone: http://localhost:8070/eureka/
 
 info:
   app:

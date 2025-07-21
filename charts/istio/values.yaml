@@ -1,0 +1,20 @@
+virtualService:
+  enabled: true
+  name: eazybank-vs
+  gateway: eazybank-gateway
+  hosts:
+    - eazybank.local
+
+destinationRule:
+  enabled: true
+  circuitBreaker:
+    consecutiveErrors: 3
+    interval: 30s
+    baseEjectionTime: 30s
+    maxEjectionPercent: 50
+
+trafficPolicy:
+  retries:
+    attempts: 3
+    perTryTimeout: 2s
+  timeout: 10s
