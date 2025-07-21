@@ -1,35 +1,113 @@
-# Master Microservices with Spring Boot, Docker, Kubernetes
+# Kubernetes-Native Microservices with Spring Boot
 
-Java, Spring, Docker, Kubernetes")](https://www.udemy.com/course/master-microservices-with-spring-docker-kubernetes/?referralCode=9365DB9B7EE637F629A9)
+A modern microservices architecture built with Spring Boot and Kubernetes-native solutions, migrated from Spring Cloud components.
 
-Learn how to create enterprise and production ready Microservices with Spring, Spring Cloud, Docker and Kubernetes.
+Based on the Udemy course [Master Microservices with Spring Boot, Docker, Kubernetes](https://www.udemy.com/course/master-microservices-with-spring-docker-kubernetes/?referralCode=9365DB9B7EE637F629A9) by EazyBytes.
 
-## Topics covered in the course
-* Section 1 - Introduction to Microservices Architecture
-* Section 2- Building microservices using Spring Boot
-* Section 3 - How do we right size our microservices & identify boundaries
-* Section 4 - Handle deployment, portability &  scalability of microservices using Docker
-* Section 5 - Deep Dive on Cloud Native Apps & 15-Factor methodology
-* Section 6 - Configurations Management in Microservices
-* Section 7 - Using MySQL DBs inside microservices
-* Section 8 - Service Discovery & Service Registration in microservices
-* Section 9 - Gateway, Routing & Cross cutting concerns in Microservices
-* Section 10 - Making Microservices Resilient
-* Section 11 - Observability and monitoring of microservices
-* Section 12 - Microservices Security
-* Section 13 - Event Driven microservices using RabbitMQ,Spring Cloud Functions & Stream
-* Section 14 - Event Driven microservices using Kafka,Spring Cloud Functions & Stream
-* Section 15 - Container Orchestration using Kubernetes
-* Section 16 - Deep dive on Helm
-* Section 17 - Server-side service discovery and load balancing using Kubernetes
-* Section 18 - Deploying microservices into cloud K8s cluster
-* Section 19 - Introduction to K8s Ingress, Service Mesh (Istio) & mTLS
-* Section 20 - Congratulations & Thank You
+## Project Architecture
 
-## Pre-requisite for the course
-- Good understanding on Java and Spring concepts
-- Basic understanding on SpringBoot & REST services is a bonus but not mandatory
-- Interest to learn and explore about Microservices
+### Migration from Spring Cloud to Kubernetes-Native
+
+This project has been migrated from Spring Cloud to leverage Kubernetes-native solutions:
+
+| Spring Cloud Component | Kubernetes-Native Replacement |
+|------------------------|------------------------------|
+| Spring Cloud Config Server | Kubernetes ConfigMaps & Secrets |
+| Eureka Service Discovery | Kubernetes DNS |
+| Spring Cloud Gateway | Kubernetes Gateway API |
+| Resilience4j Circuit Breaker | Istio Traffic Management |
+| OpenFeign | RestTemplate |
+| H2 Database | SQLite with Persistent Volumes |
+
+### Microservices
+
+* **accounts** (Port 8080) - Account management service
+* **cards** (Port 9000) - Credit card management service
+* **loans** (Port 8090) - Loan management service
+* **message** - Event-driven messaging service
+* **gatewayserver** - Legacy Spring Cloud Gateway (being phased out)
+
+### Technology Stack
+
+* **Language**: Java 21
+* **Framework**: Spring Boot 3.4.1
+* **Database**: SQLite (embedded with persistent storage)
+* **Build Tool**: Maven (multi-module with BOM)
+* **Containerization**: Docker with Google Jib
+* **Orchestration**: Kubernetes with Helm
+* **API Gateway**: Kubernetes Gateway API
+* **Service Mesh**: Istio (optional)
+* **Secrets Management**: External Secrets Operator (optional)
+* **Observability**: OpenTelemetry, Micrometer, Prometheus
+
+## Prerequisites
+
+- Java 21 or higher
+- Maven 3.8+
+- Docker Desktop with Kubernetes enabled
+- Helm 3.x
+- kubectl CLI
+- (Optional) Istio for service mesh features
+
+## Quick Start
+
+### Local Development
+
+```bash
+# Build all services
+mvn clean install
+
+# Run individual service
+cd src/accounts
+./mvnw spring-boot:run
+
+# Build Docker images
+./mvnw compile jib:dockerBuild
+```
+
+### Kubernetes Deployment
+
+```bash
+# Deploy core services
+helm install accounts charts/accounts/
+helm install cards charts/cards/
+helm install loans charts/loans/
+
+# Deploy Gateway API
+helm install gateway-api charts/gateway-api/
+
+# Optional: Deploy Istio policies
+helm install istio charts/istio/
+```
+
+### Access Services
+
+- **Via Gateway**: http://localhost/eazybank/{service}/api/*
+- **Direct Access** (port-forward): 
+  - Accounts: http://localhost:8080/swagger-ui.html
+  - Cards: http://localhost:9000/swagger-ui.html
+  - Loans: http://localhost:8090/swagger-ui.html
+
+## Project Structure
+
+```
+├── src/
+│   ├── accounts/         # Account management microservice
+│   ├── cards/           # Credit card microservice
+│   ├── loans/           # Loan microservice
+│   ├── message/         # Event-driven messaging service
+│   ├── gatewayserver/   # Legacy Spring Cloud Gateway
+│   ├── common/          # Shared library (SQLite dialect)
+│   └── eazy-bom/        # Parent POM for dependency management
+├── charts/              # Helm charts for Kubernetes deployment
+│   ├── accounts/
+│   ├── cards/
+│   ├── loans/
+│   ├── gateway-api/     # Kubernetes Gateway API configuration
+│   ├── istio/          # Istio service mesh policies
+│   └── external-secrets/ # External Secrets configuration
+└── docker-compose.yml   # Local development with Docker Compose
+```
 
 # Important Links
 - Spring Boot - https://spring.io/projects/spring-boot
